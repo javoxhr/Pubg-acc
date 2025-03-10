@@ -10,7 +10,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 50px;
-      background: #f0ecc6;
+      background: #000;
       color: #fff;
     }
 
@@ -58,7 +58,7 @@
 
   <script>
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Делаем WebApp на полный экран
+    tg.expand(); // Полный экран
 
     const accounts = [
       { login: 'player1@example.com', password: 'password123' },
@@ -73,32 +73,23 @@
         return;
       }
 
-      tg.showPopup({
-        title: 'Подтверждение',
-        message: 'Вы уверены, что хотите купить случайный PUBG аккаунт за 100 Stars?',
-        buttons: [
-          { id: 'confirm', type: 'default', text: 'Купить' },
-          { id: 'cancel', type: 'cancel', text: 'Отмена' }
-        ]
-      }, (buttonId) => {
-        if (buttonId === 'confirm') {
-          // Замените "your_invoice_slug" на реальный slug
-          tg.openInvoice({ slug: 'your_invoice_slug' });
-        }
-      });
-
-      tg.onEvent('invoice_closed', (event) => {
-        if (event.status === 'paid') {
-          console.log('✅ Оплата прошла успешно!');
-
+      tg.openInvoice({
+        slug: 'your_invoice_slug', // Замените на ваш slug из BotFather
+        request_id: 'buy_random_pubg_account'
+      }, (result) => {
+        if (result.status === 'paid') {
           const randomIndex = Math.floor(Math.random() * accounts.length);
           const randomAccount = accounts[randomIndex];
 
           document.getElementById('login').textContent = randomAccount.login;
           document.getElementById('password').textContent = randomAccount.password;
           document.getElementById('accountInfo').style.display = 'block';
+
+          alert('✅ Оплата прошла успешно! Ваш аккаунт показан ниже.');
+        } else if (result.status === 'cancelled') {
+          alert('❌ Оплата отменена. Попробуйте снова.');
         } else {
-          alert('❌ Оплата не была завершена.');
+          alert('❌ Недостаточно Stars для оплаты.');
         }
       });
     }
